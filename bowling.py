@@ -1,17 +1,24 @@
 
 from random import randint
 
-SPARE = -1
 MAX = 10
 ROUNDS = 10
 
 
-def is_strike(t: tuple) -> bool:
-    return t[0] == MAX
+class Bonus:
+    NO = 0
+    STRIKE = 1
+    SPARE = -1
 
 
-def is_spare(t: tuple) -> bool:
-    return t[0] < MAX and t[0] + t[1] == MAX
+def bonus(f: tuple, n: int) -> int:
+    if f[0] == MAX:
+        r = n + Bonus.STRIKE
+        return r, r
+    elif sum(f) == MAX:
+        return Bonus.SPARE, 0
+    else:
+        return Bonus.NO, 0
 
 
 def play_frame() -> tuple:
@@ -26,7 +33,9 @@ def play_frame() -> tuple:
 def play_game() -> list:
     game = [play_frame() for _ in range(ROUNDS)]
 
-    if is_strike(game[-1]) or is_spare(game[-1]):
+    r, _ = bonus(game[-1], 0)
+
+    if r != Bonus.NO:
         three = randint(0, MAX)
         game[-1] = (game[-1][0], game[-1][1], three)
 
@@ -38,15 +47,7 @@ def compute_bonuses(p: list) -> list:
     c = 0
 
     for i in range(len(p) - 2, -1, -1):
-        if is_strike(p[i]):
-            c += 1
-            b[i] = c
-        elif is_spare(p[i]):
-            c = 0
-            b[i] = SPARE
-        else:
-            c = 0
-            b[i] = 0
+        b[i], c = bonus(p[i], c)
 
     return b
 
@@ -62,7 +63,7 @@ def count_points(p: list) -> int:
             total += 20 + sum(p[i + 2])
         elif b[i] == 1:
             total += 10 + sum(p[i + 1])
-        elif b[i] == SPARE:
+        elif b[i] == Bonus.SPARE:
             total += 10 + p[i + 1][0]
         else:
             total += sum(p[i])
