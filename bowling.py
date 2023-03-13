@@ -12,7 +12,7 @@ class Bonus:
 
 
 def bonus(f: tuple, n: int) -> int:
-    if f[0] == MAX:
+    if max(f) == MAX:
         r = n + Bonus.STRIKE
         return r, r
     elif sum(f) == MAX:
